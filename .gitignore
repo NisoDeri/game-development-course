@@ -49,14 +49,9 @@ mono_crash.*
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# --- Local-only files (not part of the submission) ----------------------------
-# Editor scripting is only taught in week 13, so the scene builder must never be submitted.
-/Assets/_LocalTools/
-/Assets/_LocalTools.meta
-
-# Working notes for Claude Code
-CLAUDE.md
-PROMPTS.md
+# --- Not tracked --------------------------------------------------------------
+# NOTE: this repo is only a private transfer channel between two PCs, so CLAUDE.md, PROMPTS.md and
+# Assets/_LocalTools/ (the scene builder) ARE tracked here. The real submission repo must NOT contain them.
 /.claude/
 
 # Course material (slides / assignment PDFs) is not part of the project
