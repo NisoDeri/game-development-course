@@ -27,6 +27,8 @@ the words of the assignment: `Player`, `Enemy`, `Coin`.
 | Key | Action |
 |-----|--------|
 | `W` `A` `S` `D` | Move the white pawn (diagonal movement is not faster) |
+| `Space` | Dash: a short speed burst while moving (extension) |
+| `R` | Restart after a win or a loss (extension) |
 
 Tip: set the Game view to **16:9** so the whole table (and the wooden rim) is visible.
 
@@ -78,6 +80,38 @@ A Dynamic player solves both problems, while the Kinematic trigger enemy never p
 
 Call flow: `Coin → GameManager → CoinSpawner` and `Enemy → GameManager`.
 
+`GameManager` and `CoinSpawner` also have small read-only getters (`GetScore()`, `IsGameOver()`, `IsWon()`,
+`GetBatchNumber()`) that only the extensions use. They do not change how the game works.
+
+---
+
+## Extensions (approved by the lecturer)
+
+The lecturer allowed extending the assignment as long as every requirement keeps working. All nine requirements
+above work exactly the same, and `you won` / `you lose` are still printed once. Every extension is its own
+script in `Assets/Scripts/Assignment01/Extensions/`. **Switch an extension off (untick its component, or delete its
+object) and you get the original assignment back.**
+
+| Extension | What it does | Script (on) | How to turn it off |
+|-----------|--------------|-------------|--------------------|
+| **Knight** | From batch 3 on, a dark chess knight appears in the corner farthest from you. Every 1.2 s it picks the L-shaped jump that lands closest to you, marks the landing cell for 0.5 s, then hops there. Touching you counts as getting caught. It stops when the game ends. | `KnightEnemy` (Knight) | Untick `KnightEnemy` (the knight stays hidden), or delete the `Knight` and `KnightMarker` objects. `Appear At Batch` sets when it arrives. |
+| **Chessboard** | A very faint checkerboard (cell = 1 unit) over the felt. The knight's jumps follow the same grid. Chips stay the most visible thing. | background object `Chessboard` | Delete or disable the `Chessboard` object |
+| **Dash** | `Space` gives about 2.5× speed for 0.15 s, with a 1.5 s cooldown. It only has an effect while you are moving. | `PlayerDash` (Player) | Untick `PlayerDash` |
+| **Difficulty** | Each new batch makes the red enemy 5% faster, but never faster than 90% of the player's speed. | `EnemyDifficulty` (Enemy) | Untick `EnemyDifficulty` |
+| **HUD** | Score `420 / 1000`, batch number, a "Knight incoming!" warning for 2 s, a big "PROMOTED!" or "CAPTURED!" at the end, and "Press R to restart". | `Hud` (HUD canvas) | Disable or delete the `HUD` object |
+| **Restart** | After a win or a loss, `R` reloads the scene. | `RestartOnR` (HUD canvas) | Untick `RestartOnR` |
+| **Coin pop-in** | A new coin scales up from nothing to full size in 0.2 s. A coin can already be collected (and is destroyed immediately) while it grows. | `CoinPopIn` (Coin prefab) | Untick or remove `CoinPopIn` on the prefab |
+| **Clearer shadows** | The pawn and chip shadows are 50% black and a bit larger. | (sprites only) | n/a, purely visual |
+
+Rules the extensions follow: no coroutines (timers in `Update` / `FixedUpdate`), no changes to the core
+logic, and they read the game state through the getters above (and the public `targetScore`). The only call into the
+core is the knight's `GameManager.PlayerCaught()`, exactly like the red enemy. The knight moves with
+`Rigidbody2D.MovePosition` in `FixedUpdate` like the other enemies, has a Kinematic body and a trigger collider,
+and the tag `Enemy`.
+
+The HUD uses TextMeshPro. The first time you open the project, import its resources once:
+`Window > TextMeshPro > Import TMP Essential Resources`.
+
 ## Parameters you can change in the Inspector
 
 | Object / script | Field | Default |
@@ -94,6 +128,18 @@ Call flow: `Coin → GameManager → CoinSpawner` and `Enemy → GameManager`.
 | | `gameManager` | reference |
 | GameManager / `GameManager` | `targetScore` | 1000 |
 | | `coinSpawner`, `player`, `enemy` | references |
+| Player / `PlayerDash` (extension) | `speedMultiplier`, `dashDuration`, `cooldown` | 2.5, 0.15 s, 1.5 s |
+| Enemy / `EnemyDifficulty` (extension) | `speedIncreasePerBatch` | 0.05 (= 5% per batch) |
+| | `maxSpeedPercentOfPlayer` | 0.9 (= 90%) |
+| | `coinSpawner`, `playerMovement` | references |
+| Knight / `KnightEnemy` (extension) | `appearAtBatch` | 3 |
+| | `moveInterval`, `markerTime`, `hopDuration` | 1.2 s, 0.5 s, 0.15 s |
+| | `gridMin`, `gridMax` | (-7.5, -3.5), (7.5, 3.5) (centers of the corner cells) |
+| | `gameManager`, `coinSpawner`, `player`, `marker`, `visuals` | references |
+| Coin prefab / `CoinPopIn` (extension) | `duration` | 0.2 s |
+| HUD / `Hud` (extension) | `warningTime` | 2 s |
+| | `gameManager`, `coinSpawner`, `knight`, five texts | references |
+| HUD / `RestartOnR` (extension) | `gameManager` | reference |
 
 `coinValues` and `coinColors` are matched by index: element 0 of both arrays is the first coin type, and so on.
 
