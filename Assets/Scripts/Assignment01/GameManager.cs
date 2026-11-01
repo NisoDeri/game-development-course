@@ -11,6 +11,23 @@ public class GameManager : MonoBehaviour
 
     // Once the game is won or lost, nothing else may be counted and no second message is printed.
     private bool isGameOver;
+    private bool isWon;
+
+    // Read-only getters for the extensions (HUD, restart, knight). They keep the fields private.
+    public int GetScore()
+    {
+        return score;
+    }
+
+    public bool IsGameOver()
+    {
+        return isGameOver;
+    }
+
+    public bool IsWon()
+    {
+        return isWon;
+    }
 
     // Called by a Coin when the player touches it.
     public void CoinCollected(int value)
@@ -27,6 +44,7 @@ public class GameManager : MonoBehaviour
         {
             // The win can happen in the middle of a batch, so no new batch is requested.
             isGameOver = true;
+            isWon = true;
             Debug.Log("you won");
             Destroy(enemy);
             return;

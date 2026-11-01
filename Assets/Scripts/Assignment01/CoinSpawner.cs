@@ -21,6 +21,7 @@ public class CoinSpawner : MonoBehaviour
     public GameManager gameManager;
 
     private int coinsRemaining;
+    private int batchNumber;
 
     void Start()
     {
@@ -45,8 +46,15 @@ public class CoinSpawner : MonoBehaviour
         }
     }
 
+    // Read-only getter for the extensions: 1 during the first batch, 2 during the second, and so on.
+    public int GetBatchNumber()
+    {
+        return batchNumber;
+    }
+
     void SpawnBatch()
     {
+        batchNumber++;
         coinsRemaining = coinsPerBatch;
 
         for (int i = 0; i < coinsPerBatch; i++)
